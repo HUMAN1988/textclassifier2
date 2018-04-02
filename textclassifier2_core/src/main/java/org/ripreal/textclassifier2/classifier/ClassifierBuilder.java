@@ -53,6 +53,23 @@ public final class ClassifierBuilder {
         return this;
     }
 
+    public ClassifierBuilder addBayessClassifierUnit(@NonNull String characteristicName, @NonNull NGramStrategy nGramStrategy) {
+        addBayessClassifierUnit(null, characteristicName, null, nGramStrategy);
+        return this;
+    }
+
+    public ClassifierBuilder addBayessClassifierUnit(File trainedClassifier, @NonNull String characteristicName, List<VocabularyWord> vocabulary, @NonNull NGramStrategy nGramStrategy) {
+        classifierUnits.add(
+                new ClassifierUnitProxy(
+                        BayessClassifierUnit::new,
+                        trainedClassifier,
+                        nGramStrategy,
+                        vocabulary,
+                        characteristicFactory.newCharacteristic(characteristicName)
+                ));
+        return this;
+    }
+
     public ClassifierBuilder subscribe(@NonNull ClassifierAction action) {
         listeners.add(action);
         reader.subscribe(action);

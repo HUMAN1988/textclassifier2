@@ -1,6 +1,7 @@
 package org.ripreal.textclassifier2.classifier;
 
 import lombok.Getter;
+import lombok.NonNull;
 import org.encog.Encog;
 import org.encog.ml.data.basic.BasicMLDataSet;
 import org.encog.neural.networks.training.propagation.Propagation;
@@ -8,6 +9,8 @@ import org.encog.neural.networks.training.propagation.resilient.ResilientPropaga
 import org.ripreal.textclassifier2.model.Characteristic;
 import org.ripreal.textclassifier2.model.CharacteristicValue;
 import org.ripreal.textclassifier2.model.ClassifiableText;
+import org.ripreal.textclassifier2.model.VocabularyWord;
+import org.ripreal.textclassifier2.ngram.NGramStrategy;
 
 import java.io.File;
 import java.io.OutputStream;
@@ -20,12 +23,25 @@ public class BayessClassifierUnit extends ClassifierUnit{
     @Getter
     private final Characteristic characteristic;
     private final int outputLayerSize;
-
+    @Getter
+    private final List<VocabularyWord> vocabulary;
+    private final int inputLayerSize;
+    private final NGramStrategy nGramStrategy;
     // CONSTRUCTOR
 
-    BayessClassifierUnit(Characteristic characteristic, int outputLayerSize){
+    BayessClassifierUnit(File trainedNetwork, @NonNull Characteristic characteristic, @NonNull List<VocabularyWord> vocabulary, @NonNull NGramStrategy nGramStrategy){
+        if (characteristic.getName().equals("") ||
+                characteristic.getPossibleValues() == null ||
+                characteristic.getPossibleValues().size() == 0 ||
+                vocabulary.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+
         this.characteristic = characteristic;
-        this.outputLayerSize = outputLayerSize;
+        this.vocabulary = vocabulary;
+        this.inputLayerSize = vocabulary.size();
+        this.outputLayerSize = characteristic.getPossibleValues().size();
+        this.nGramStrategy = nGramStrategy;
     }
 
     public void build(List<ClassifiableText> classifiableTexts) {
